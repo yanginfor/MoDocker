@@ -1,15 +1,41 @@
 FROM ubuntu:trusty
-MAINTAINER EasyChen <easychen@gmail.com>
+MAINTAINER hfeng <hfent@tutum.co>
 
-# 添加商业软件源
-#deb http://archive.ubuntu.com/ubuntu trusty multiverse
-#deb http://archive.ubuntu.com/ubuntu trusty-updates multiverse
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y update
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install pptpd
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install vim
 
+#set username and password
+RUN echo "user * pass *" >> /etc/ppp/chap-secrets
 
+#config pptpd address
+RUN echo "localip 192.168.169.1" >> /etc/pptpd.conf
+RUN echo "localip 192.168.169.100-200" >> /etc/pptpd.conf
+
+#config dns
+RUN echo "ms-dns 8.8.8.8" >> /etc/ppp/pptpd-options
+RUN echo "ms-dns 8.8.4.4" >> /etc/ppp/pptpd-options
+
+#config IPV4 forwarding
+RUN echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+RUN echo "net.ipv4.conf.default.rp_filter=1" >> /etc/sysctl.conf
+RUN echo "net.ipv4.conf.all.rp_filter=1" >> /etc/sysctl.conf
+RUN echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
+
+RUN sysctl -p
+RUN /etc/init.d/pptpd restart
+
+#set iptables forwording rules
+RUN sed -i '1s/^/iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE/' /etc/rc.local
+
+RUN mkdir /var/run/sshd
+RUN echo 'root:password!' | chpasswd
+RUN sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+# SSH login fix. Otherwise user is kicked off after login
+RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 RUN echo "deb http://archive.ubuntu.com/ubuntu trusty multiverse" >> /etc/apt/sources.list
 RUN echo "deb http://archive.ubuntu.com/ubuntu trusty-updates multiverse" >> /etc/apt/sources.list
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y update
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install vim
 
 # 先更新apt-get
 RUN apt-get update && apt-get upgrade -y
@@ -31,8 +57,6 @@ RUN apt-get install git -y
 RUN git clone https://github.com/easychen/KODExplorer.git  /var/www/html
 
 
-
-
 # 安装aria2
 RUN apt-get install aria2 -y 
 
@@ -46,8 +70,9 @@ WORKDIR /var/www/html/comic
 VOLUME /var/www/html/comic
 
 
-EXPOSE 80 6800
-
-#CMD /cldata/init.sh
+ENV NOTVISIBLE "in users profile"
+RUN echo "export VISIBLE=now" >> /etc/profile
+EXPOSE 1723
 EXPOSE 22
+EXPOSE 80 6800
 CMD ["/usr/sbin/sshd", "-D"]

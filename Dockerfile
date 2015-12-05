@@ -2,8 +2,8 @@ FROM ubuntu:trusty
 MAINTAINER EasyChen <easychen@gmail.com>
 
 # 添加商业软件源
-deb http://archive.ubuntu.com/ubuntu trusty multiverse
-deb http://archive.ubuntu.com/ubuntu trusty-updates multiverse
+#deb http://archive.ubuntu.com/ubuntu trusty multiverse
+#deb http://archive.ubuntu.com/ubuntu trusty-updates multiverse
 
 RUN echo "deb http://archive.ubuntu.com/ubuntu trusty multiverse" >> /etc/apt/sources.list
 RUN echo "deb http://archive.ubuntu.com/ubuntu trusty-updates multiverse" >> /etc/apt/sources.list

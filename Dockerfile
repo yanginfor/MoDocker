@@ -27,6 +27,15 @@ RUN rm -Rf /var/www/html
 RUN apt-get install git -y
 RUN git clone https://github.com/easychen/KODExplorer.git  /var/www/html
 
+RUN mkdir /var/run/sshd
+RUN echo 'root:password!' | chpasswd
+RUN sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+# SSH login fix. Otherwise user is kicked off after login
+RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam
+
+
+
 
 # 安装aria2
 RUN apt-get install aria2 -y 

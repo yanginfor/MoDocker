@@ -5,8 +5,11 @@ MAINTAINER EasyChen <easychen@gmail.com>
 #deb http://archive.ubuntu.com/ubuntu trusty multiverse
 #deb http://archive.ubuntu.com/ubuntu trusty-updates multiverse
 
+
 RUN echo "deb http://archive.ubuntu.com/ubuntu trusty multiverse" >> /etc/apt/sources.list
 RUN echo "deb http://archive.ubuntu.com/ubuntu trusty-updates multiverse" >> /etc/apt/sources.list
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y update
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install vim
 
 # 先更新apt-get
 RUN apt-get update && apt-get upgrade -y
@@ -27,10 +30,15 @@ RUN rm -Rf /var/www/html
 RUN apt-get install git -y
 RUN git clone https://github.com/easychen/KODExplorer.git  /var/www/html
 
+RUN mkdir /var/run/sshd
 RUN echo 'root:password!' | chpasswd
+RUN sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 
+# SSH login fix. Otherwise user is kicked off after login
+RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 
-
+ENV NOTVISIBLE "in users profile"
+RUN echo "export VISIBLE=now" >> /etc/profile
 
 
 # 安装aria2
@@ -48,4 +56,6 @@ VOLUME /var/www/html/comic
 
 EXPOSE 80 6800
 
-CMD /cldata/init.sh
+#CMD /cldata/init.sh
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]

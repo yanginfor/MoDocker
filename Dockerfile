@@ -66,8 +66,8 @@ COPY init.sh /cldata/init.sh
 COPY init.php /cldata/init.php
 RUN chmod +x /cldata/init.sh
 
-WORKDIR /var/www/html/comic
-VOLUME /var/www/html/comic
+#WORKDIR /var/www/html/comic
+RUN mkdir  /var/www/html/comic
 
 
 ENV NOTVISIBLE "in users profile"

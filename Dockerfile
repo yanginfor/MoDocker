@@ -29,8 +29,6 @@ RUN git clone https://github.com/easychen/KODExplorer.git  /var/www/html
 
 RUN echo 'root:password!' | chpasswd
 
-# SSH login fix. Otherwise user is kicked off after login
-RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam
 
 
 

@@ -38,7 +38,7 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu trusty multiverse" >> /etc/apt/so
 RUN echo "deb http://archive.ubuntu.com/ubuntu trusty-updates multiverse" >> /etc/apt/sources.list
 
 # 先更新apt-get
-RUN apt-get update && apt-get upgrade -y
+#RUN apt-get update && apt-get upgrade -y
 
 # 安装unrar
 RUN apt-get install unrar -y

@@ -38,7 +38,7 @@ COPY init.php /cldata/init.php
 RUN chmod +x /cldata/init.sh
 RUN echo 'root:password!' | chpasswd
 WORKDIR /var/www/html/comic
-RUN chomd 777 /var/www/html/comic
+RUN chmod 777 /var/www/html/comic
 
 EXPOSE 22
 EXPOSE 80 6800

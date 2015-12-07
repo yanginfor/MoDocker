@@ -1,26 +1,10 @@
 FROM ubuntu:trusty
-MAINTAINER hfeng <hfent@tutum.co>
+MAINTAINER EasyChen <easychen@gmail.com>
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y update
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install pptpd
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install vim
+# 添加商业软件源
+#deb http://archive.ubuntu.com/ubuntu trusty multiverse
+#deb http://archive.ubuntu.com/ubuntu trusty-updates multiverse
 
-
-
-#config IPV4 forwarding
-RUN echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
-RUN echo "net.ipv4.conf.default.rp_filter=1" >> /etc/sysctl.conf
-RUN echo "net.ipv4.conf.all.rp_filter=1" >> /etc/sysctl.conf
-RUN echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
-
-RUN sysctl -p
-
-#RUN mkdir /var/run/sshd
-RUN echo 'root:password!' | chpasswd
-#RUN sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-
-# SSH login fix. Otherwise user is kicked off after login
-#RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 RUN echo "deb http://archive.ubuntu.com/ubuntu trusty multiverse" >> /etc/apt/sources.list
 RUN echo "deb http://archive.ubuntu.com/ubuntu trusty-updates multiverse" >> /etc/apt/sources.list
 
@@ -52,14 +36,13 @@ ADD aria2.conf /cldata/aria2.conf
 COPY init.sh /cldata/init.sh
 COPY init.php /cldata/init.php
 RUN chmod +x /cldata/init.sh
+RUN echo 'root:password!' | chpasswd
+WORKDIR /var/www/html/comic
+RUN chomd 777 /var/www/html/comic
 
-#WORKDIR /var/www/html/comic
-#RUN mkdir  /var/www/html/comic
-
-
-ENV NOTVISIBLE "in users profile"
-RUN echo "export VISIBLE=now" >> /etc/profile
-EXPOSE 1723
 EXPOSE 22
 EXPOSE 80 6800
-CMD ["/usr/sbin/sshd", "-D"]
+CMD /cldata/init.sh
+
+
+
